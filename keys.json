@@ -1,0 +1,16 @@
+{
+  "keys": [
+    {
+      "key": "OPI-VIP-123",
+      "type": "monthly",
+      "device": "",
+      "expire": ""
+    },
+    {
+      "key": "OPI-PERM-999",
+      "type": "permanent",
+      "device": "",
+      "expire": ""
+    }
+  ]
+}

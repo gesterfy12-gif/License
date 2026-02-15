@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>License Verification</title><style>
+body{
+    background:#0f172a;
+    font-family:Arial;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+.box{
+    background:#111827;
+    padding:30px;
+    border-radius:16px;
+    width:320px;
+    text-align:center;
+    box-shadow:0 0 25px rgba(0,255,200,.15);
+}
+input{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    margin-top:15px;
+    background:#020617;
+    color:white;
+}
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(45deg,#00ffa6,#00c3ff);
+    color:black;
+    font-weight:bold;
+}
+#status{
+    margin-top:15px;
+    font-weight:bold;
+}
+.valid{color:#00ffa6}
+.invalid{color:#ff3b3b}
+</style></head><body><div class="box">
+<h2>ENTER LICENSE KEY</h2>
+<input id="key" placeholder="Your key">
+<input id="device" placeholder="Device ID" readonly>
+<button onclick="checkKey()">Verify</button>
+<div id="status"></div>
+</div><script>
+function getDeviceID(){
+    let id=localStorage.getItem("DEVICE_ID");
+    if(!id){
+        id='DEV-'+Math.random().toString(36).substr(2,9).toUpperCase();
+        localStorage.setItem("DEVICE_ID",id);
+    }
+    return id;
+}
+
+document.getElementById("device").value=getDeviceID();
+
+async function checkKey(){
+    let key=document.getElementById("key").value.trim();
+    let device=getDeviceID();
+    let status=document.getElementById("status");
+
+    let res=await fetch("keys.json?"+Date.now());
+    let data=await res.json();
+
+    let found=data.keys.find(k=>k.key===key);
+
+    if(!found){
+        status.innerHTML="NOT REGISTERED";
+        status.className="invalid";
+        return;
+    }
+
+    if(found.device!=="" && found.device!==device){
+        status.innerHTML="KEY USED ON ANOTHER DEVICE";
+        status.className="invalid";
+        return;
+    }
+
+    if(found.type==="monthly" && found.expire!==""){
+        let now=new Date();
+        let exp=new Date(found.expire);
+        if(now>exp){
+            status.innerHTML="KEY EXPIRED";
+            status.className="invalid";
+            return;
+        }
+    }
+
+    status.innerHTML="KEY VALID";
+    status.className="valid";
+}
+</script></body>
+</html>
